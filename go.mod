@@ -6,7 +6,6 @@ toolchain go1.23.6
 
 require (
 	github.com/google/uuid v1.6.0
-	github.com/imhasandl/user-service v0.0.0-20250220081010-9ee4258b75b6
 	github.com/joho/godotenv v1.5.1
 	github.com/lib/pq v1.10.9
 	google.golang.org/grpc v1.70.0
