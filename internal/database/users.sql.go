@@ -8,7 +8,46 @@ package database
 import (
 	"context"
 	"database/sql"
+
+	"github.com/lib/pq"
 )
+
+const searchPosts = `-- name: SearchPosts :many
+SELECT id, created_at, updated_at, posted_by, body, likes, views, liked_by FROM posts
+WHERE body LIKE $1 || '%'
+`
+
+func (q *Queries) SearchPosts(ctx context.Context, dollar_1 sql.NullString) ([]Post, error) {
+	rows, err := q.db.QueryContext(ctx, searchPosts, dollar_1)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Post
+	for rows.Next() {
+		var i Post
+		if err := rows.Scan(
+			&i.ID,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.PostedBy,
+			&i.Body,
+			&i.Likes,
+			&i.Views,
+			pq.Array(&i.LikedBy),
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
 
 const searchUsers = `-- name: SearchUsers :many
 SELECT id, created_at, updated_at, email, password, username, is_premium, verification_code, is_verified FROM users

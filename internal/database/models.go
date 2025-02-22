@@ -10,6 +10,31 @@ import (
 	"github.com/google/uuid"
 )
 
+type Post struct {
+	ID        uuid.UUID
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	PostedBy  string
+	Body      string
+	Likes     int32
+	Views     int32
+	LikedBy   []string
+}
+
+type RefreshToken struct {
+	Token      string
+	UserID     uuid.UUID
+	ExpiryTime time.Time
+	CreatedAt  time.Time
+}
+
+type Report struct {
+	ID         uuid.UUID
+	ReportedAt time.Time
+	ReportedBy uuid.UUID
+	Reason     string
+}
+
 type User struct {
 	ID               uuid.UUID
 	CreatedAt        time.Time
