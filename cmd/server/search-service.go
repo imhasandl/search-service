@@ -98,9 +98,3 @@ func (s *server) SearchReports(ctx context.Context, req *pb.SearchReportsRequest
 		Report: responseReports,
 	}, nil
 }
-
-func (s *server) Check(ctx context.Context, req *pb.CheckRequest) (*pb.CheckResponse, error) {
-	return &pb.CheckResponse{
-		Status: req.GetCheck(),
-	}, nil
-}
