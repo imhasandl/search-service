@@ -29,6 +29,3 @@
 **/values.dev.yaml
 LICENSE
 README.md
-
-# Remove .env from the ignore list if present
-!.env
