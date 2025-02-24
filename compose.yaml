@@ -18,7 +18,7 @@ services:
     volumes:
       - db-data:/var/lib/postgresql/data
     environment:
-      - POSTGRES_DB=${DB_URL}
+      - POSTGRES_DB="${DB_URL}"
     expose:
       - 5432
     healthcheck:
