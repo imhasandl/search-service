@@ -19,8 +19,9 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	SearchService_SearchUsers_FullMethodName = "/search.SearchService/SearchUsers"
-	SearchService_SearchPosts_FullMethodName = "/search.SearchService/SearchPosts"
+	SearchService_SearchUsers_FullMethodName   = "/search.SearchService/SearchUsers"
+	SearchService_SearchPosts_FullMethodName   = "/search.SearchService/SearchPosts"
+	SearchService_SearchReports_FullMethodName = "/search.SearchService/SearchReports"
 )
 
 // SearchServiceClient is the client API for SearchService service.
@@ -29,6 +30,7 @@ const (
 type SearchServiceClient interface {
 	SearchUsers(ctx context.Context, in *SearchUsersRequest, opts ...grpc.CallOption) (*SearchUsersResponse, error)
 	SearchPosts(ctx context.Context, in *SearchPostsRequest, opts ...grpc.CallOption) (*SearchPostsResponse, error)
+	SearchReports(ctx context.Context, in *SearchReportsRequest, opts ...grpc.CallOption) (*SearchReportsResponse, error)
 }
 
 type searchServiceClient struct {
@@ -59,12 +61,23 @@ func (c *searchServiceClient) SearchPosts(ctx context.Context, in *SearchPostsRe
 	return out, nil
 }
 
+func (c *searchServiceClient) SearchReports(ctx context.Context, in *SearchReportsRequest, opts ...grpc.CallOption) (*SearchReportsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(SearchReportsResponse)
+	err := c.cc.Invoke(ctx, SearchService_SearchReports_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // SearchServiceServer is the server API for SearchService service.
 // All implementations must embed UnimplementedSearchServiceServer
 // for forward compatibility.
 type SearchServiceServer interface {
 	SearchUsers(context.Context, *SearchUsersRequest) (*SearchUsersResponse, error)
 	SearchPosts(context.Context, *SearchPostsRequest) (*SearchPostsResponse, error)
+	SearchReports(context.Context, *SearchReportsRequest) (*SearchReportsResponse, error)
 	mustEmbedUnimplementedSearchServiceServer()
 }
 
@@ -80,6 +93,9 @@ func (UnimplementedSearchServiceServer) SearchUsers(context.Context, *SearchUser
 }
 func (UnimplementedSearchServiceServer) SearchPosts(context.Context, *SearchPostsRequest) (*SearchPostsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SearchPosts not implemented")
+}
+func (UnimplementedSearchServiceServer) SearchReports(context.Context, *SearchReportsRequest) (*SearchReportsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SearchReports not implemented")
 }
 func (UnimplementedSearchServiceServer) mustEmbedUnimplementedSearchServiceServer() {}
 func (UnimplementedSearchServiceServer) testEmbeddedByValue()                       {}
@@ -138,6 +154,24 @@ func _SearchService_SearchPosts_Handler(srv interface{}, ctx context.Context, de
 	return interceptor(ctx, in, info, handler)
 }
 
+func _SearchService_SearchReports_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SearchReportsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SearchServiceServer).SearchReports(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: SearchService_SearchReports_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SearchServiceServer).SearchReports(ctx, req.(*SearchReportsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // SearchService_ServiceDesc is the grpc.ServiceDesc for SearchService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -152,6 +186,10 @@ var SearchService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SearchPosts",
 			Handler:    _SearchService_SearchPosts_Handler,
+		},
+		{
+			MethodName: "SearchReports",
+			Handler:    _SearchService_SearchReports_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

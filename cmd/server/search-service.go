@@ -75,3 +75,26 @@ func (s *server) SearchPosts(ctx context.Context, req *pb.SearchPostsRequest) (*
 		Post: responsePosts,
 	}, nil
 }
+
+func (s *server) SearchReports(ctx context.Context, req *pb.SearchReportsRequest) (*pb.SearchReportsResponse, error) {
+	searchReportsParams := sql.NullString{String: req.GetQuery(), Valid: req.GetQuery() != ""}
+
+	reports, err := s.db.SearchReports(ctx, searchReportsParams)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "can't get report: %v - SearchReports", err)
+	}
+
+	responseReports := make([]*pb.Report, len(reports))
+	for i, report := range reports {
+		responseReports[i] = &pb.Report{
+			Id:        report.ID.String(),
+			ReportedAt: timestamppb.New(report.ReportedAt),
+			ReportedBy: report.ReportedBy.String(),
+			Reason: report.Reason,
+		}
+	}
+
+	return &pb.SearchReportsResponse{
+		Report: responseReports,
+	}, nil
+}
