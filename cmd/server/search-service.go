@@ -2,9 +2,13 @@ package server
 
 import (
 	"context"
+	"database/sql"
 
 	"github.com/imhasandl/search-service/internal/database"
 	pb "github.com/imhasandl/search-service/protos"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 type server struct {
@@ -21,10 +25,53 @@ func NewServer(dbQueries *database.Queries, tokenSecret string) *server {
 }
 
 func (s *server) SearchUsers(ctx context.Context, req *pb.SearchUsersRequest) (*pb.SearchUsersResponse, error) {
-	return nil, nil
+	searchUserParams := sql.NullString{String: req.GetQuery(), Valid: req.GetQuery() != ""}
+
+	users, err := s.db.SearchUsers(ctx, searchUserParams)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "can't get users: %v - SearchUser", err)
+	}
+
+	responseUsers := make([]*pb.User, len(users))
+	for i, user := range users {
+		responseUsers[i] = &pb.User{
+			Id:               user.ID.String(),
+			CreatedAt:        timestamppb.New(user.CreatedAt),
+			UpdatedAt:        timestamppb.New(user.UpdatedAt),
+			Email:            user.Email,
+			Username:         user.Username,
+			IsPremium:        user.IsPremium,
+			VerificationCode: user.VerificationCode,
+			IsVerified:       user.IsVerified,
+		}
+	}
+	return &pb.SearchUsersResponse{
+		Users: responseUsers,
+	}, nil
 }
 
 func (s *server) SearchPosts(ctx context.Context, req *pb.SearchPostsRequest) (*pb.SearchPostsResponse, error) {
-	return nil, nil
-}
+	searchPostParams := sql.NullString{String: req.GetQuery(), Valid: req.GetQuery() != ""}
 
+	posts, err := s.db.SearchPosts(ctx, searchPostParams)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "can't get posts: %v - SearchUser", err)
+	}
+
+	responsePosts := make([]*pb.Post, len(posts))
+	for i, post := range posts {
+		responsePosts[i] = &pb.Post{
+			Id:        post.ID.String(),
+			CreatedAt: timestamppb.New(post.CreatedAt),
+			UpdatedAt: timestamppb.New(post.UpdatedAt),
+			PostedBy:  post.PostedBy,
+			Body:      post.Body,
+			Views:     post.Views,
+			LikedBy:   post.LikedBy,
+		}
+	}
+
+	return &pb.SearchPostsResponse{
+		Post: responsePosts,
+	}, nil
+}
