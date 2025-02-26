@@ -4,10 +4,10 @@ import (
 	"context"
 	"database/sql"
 
+	"github.com/imhasandl/search-service/cmd/helper"
 	"github.com/imhasandl/search-service/internal/database"
 	pb "github.com/imhasandl/search-service/protos"
 	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -29,7 +29,7 @@ func (s *server) SearchUsers(ctx context.Context, req *pb.SearchUsersRequest) (*
 
 	users, err := s.db.SearchUsers(ctx, searchUserParams)
 	if err != nil {
-		return nil, status.Errorf(codes.Internal, "can't get users: %v - SearchUser", err)
+		return nil, helper.RespondWithErrorGRPC(ctx, codes.Internal, "can't get users - SearchUsers", err)
 	}
 
 	responseUsers := make([]*pb.User, len(users))
@@ -55,7 +55,7 @@ func (s *server) SearchPosts(ctx context.Context, req *pb.SearchPostsRequest) (*
 
 	posts, err := s.db.SearchPosts(ctx, searchPostParams)
 	if err != nil {
-		return nil, status.Errorf(codes.Internal, "can't get posts: %v - SearchUser", err)
+		return nil, helper.RespondWithErrorGRPC(ctx, codes.Internal, "can't find posts - SearchPosts", err)
 	}
 
 	responsePosts := make([]*pb.Post, len(posts))
@@ -81,7 +81,7 @@ func (s *server) SearchReports(ctx context.Context, req *pb.SearchReportsRequest
 
 	reports, err := s.db.SearchReports(ctx, searchReportsParams)
 	if err != nil {
-		return nil, status.Errorf(codes.Internal, "can't get report: %v - SearchReports", err)
+		return nil, helper.RespondWithErrorGRPC(ctx, codes.Internal, "can't get report - SearchReports", err)
 	}
 
 	responseReports := make([]*pb.Report, len(reports))
