@@ -47,3 +47,42 @@ func (q *Queries) SearchUsers(ctx context.Context, dollar_1 sql.NullString) ([]U
 	}
 	return items, nil
 }
+
+const searchUsersByDate = `-- name: SearchUsersByDate :many
+SELECT id, created_at, updated_at, email, password, username, is_premium, verification_code, is_verified FROM users
+WHERE username LIKE $1 || '%'
+ORDER BY created_at
+`
+
+func (q *Queries) SearchUsersByDate(ctx context.Context, dollar_1 sql.NullString) ([]User, error) {
+	rows, err := q.db.QueryContext(ctx, searchUsersByDate, dollar_1)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []User
+	for rows.Next() {
+		var i User
+		if err := rows.Scan(
+			&i.ID,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.Email,
+			&i.Password,
+			&i.Username,
+			&i.IsPremium,
+			&i.VerificationCode,
+			&i.IsVerified,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
