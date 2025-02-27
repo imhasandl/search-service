@@ -50,6 +50,33 @@ func (s *server) SearchUsers(ctx context.Context, req *pb.SearchUsersRequest) (*
 	}, nil
 }
 
+func (s *server) SearchUsersByDate(ctx context.Context, req *pb.SearchUsersByDateRequest) (*pb.SearchUsersByDateResponse, error) {
+	searchUsersByDateParams := sql.NullString{String: req.GetQuery(), Valid: req.GetQuery() != ""}
+
+	users, err := s.db.SearchUsersByDate(ctx, searchUsersByDateParams)
+	if err != nil {
+		return nil, helper.RespondWithErrorGRPC(ctx, codes.Internal, "can't get users by date", err)
+	}
+
+	responseUsersByDate := make([]*pb.User, len(users))
+	for i, user := range users {
+		responseUsersByDate[i] = &pb.User{
+			Id:               user.ID.String(),
+			CreatedAt:        timestamppb.New(user.CreatedAt),
+			UpdatedAt:        timestamppb.New(user.UpdatedAt),
+			Email:            user.Email,
+			Username:         user.Username,
+			IsPremium:        user.IsPremium,
+			VerificationCode: user.VerificationCode,
+			IsVerified:       user.IsVerified,
+		}
+	}
+
+	return &pb.SearchUsersByDateResponse{
+		Users: responseUsersByDate,
+	}, nil
+}
+
 func (s *server) SearchPosts(ctx context.Context, req *pb.SearchPostsRequest) (*pb.SearchPostsResponse, error) {
 	searchPostParams := sql.NullString{String: req.GetQuery(), Valid: req.GetQuery() != ""}
 
