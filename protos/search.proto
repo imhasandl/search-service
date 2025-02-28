@@ -12,6 +12,7 @@ service SearchService {
    rpc SearchReports (SearchReportsRequest) returns (SearchReportsResponse) {}
 
    rpc SearchUsersByDate (SearchUsersByDateRequest) returns (SearchUsersByDateResponse) {}
+   rpc SearchPostsByDate (SearchPostsByDateRequest) returns (SearchPostsByDateResponse) {}
 }
 
 message SearchUsersRequest {
@@ -44,6 +45,14 @@ message SearchUsersByDateRequest {
 
 message SearchUsersByDateResponse {
   repeated User users = 1;
+}
+
+message SearchPostsByDateRequest {
+  string query = 1;
+}
+
+message SearchPostsByDateResponse {
+  repeated Post posts = 1;
 }
 
 message User {

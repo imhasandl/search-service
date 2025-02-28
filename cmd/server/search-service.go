@@ -82,7 +82,7 @@ func (s *server) SearchPosts(ctx context.Context, req *pb.SearchPostsRequest) (*
 
 	posts, err := s.db.SearchPosts(ctx, searchPostParams)
 	if err != nil {
-		return nil, helper.RespondWithErrorGRPC(ctx, codes.Internal, "can't find posts - SearchPosts", err)
+		return nil, helper.RespondWithErrorGRPC(ctx, codes.Internal, "can't find posts by date - SearchPostsByDate", err)
 	}
 
 	responsePosts := make([]*pb.Post, len(posts))
@@ -93,6 +93,7 @@ func (s *server) SearchPosts(ctx context.Context, req *pb.SearchPostsRequest) (*
 			UpdatedAt: timestamppb.New(post.UpdatedAt),
 			PostedBy:  post.PostedBy,
 			Body:      post.Body,
+			Likes:     post.Likes,
 			Views:     post.Views,
 			LikedBy:   post.LikedBy,
 		}
@@ -100,6 +101,33 @@ func (s *server) SearchPosts(ctx context.Context, req *pb.SearchPostsRequest) (*
 
 	return &pb.SearchPostsResponse{
 		Post: responsePosts,
+	}, nil
+}
+
+func (s *server) SearchPostsByDate(ctx context.Context, req *pb.SearchPostsByDateRequest) (*pb.SearchPostsByDateResponse, error) {
+	searchPostsByDateParams := sql.NullString{String: req.GetQuery(), Valid: req.GetQuery() != ""}
+
+	posts, err := s.db.SearchPostsByDate(ctx, searchPostsByDateParams)
+	if err != nil {
+		return nil, helper.RespondWithErrorGRPC(ctx, codes.Internal, "can't get users by date", err)
+	}
+
+	responsePostsByDate := make([]*pb.Post, len(posts))
+	for i, post := range posts {
+		responsePostsByDate[i] = &pb.Post{
+			Id:        post.ID.String(),
+			CreatedAt: timestamppb.New(post.CreatedAt),
+			UpdatedAt: timestamppb.New(post.UpdatedAt),
+			PostedBy:  post.PostedBy,
+			Body:      post.Body,
+			Likes:     post.Likes,
+			Views:     post.Views,
+			LikedBy:   post.LikedBy,
+		}
+	}
+
+	return &pb.SearchPostsByDateResponse{
+		Posts: responsePostsByDate,
 	}, nil
 }
 
@@ -114,10 +142,10 @@ func (s *server) SearchReports(ctx context.Context, req *pb.SearchReportsRequest
 	responseReports := make([]*pb.Report, len(reports))
 	for i, report := range reports {
 		responseReports[i] = &pb.Report{
-			Id:        report.ID.String(),
+			Id:         report.ID.String(),
 			ReportedAt: timestamppb.New(report.ReportedAt),
 			ReportedBy: report.ReportedBy.String(),
-			Reason: report.Reason,
+			Reason:     report.Reason,
 		}
 	}
 
