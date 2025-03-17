@@ -4,10 +4,10 @@ import (
 	"context"
 	"database/sql"
 
+	"github.com/imhasandl/search-service/cmd/helper"
 	"github.com/imhasandl/search-service/internal/database"
 	pb "github.com/imhasandl/search-service/protos"
 	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -29,7 +29,7 @@ func (s *server) SearchUsers(ctx context.Context, req *pb.SearchUsersRequest) (*
 
 	users, err := s.db.SearchUsers(ctx, searchUserParams)
 	if err != nil {
-		return nil, status.Errorf(codes.Internal, "can't get users: %v - SearchUser", err)
+		return nil, helper.RespondWithErrorGRPC(ctx, codes.Internal, "can't get users - SearchUsers", err)
 	}
 
 	responseUsers := make([]*pb.User, len(users))
@@ -55,7 +55,11 @@ func (s *server) SearchUsersByDate(ctx context.Context, req *pb.SearchUsersByDat
 
 	users, err := s.db.SearchUsersByDate(ctx, searchUsersByDateParams)
 	if err != nil {
+<<<<<<< HEAD
 		return nil, status.Errorf(codes.Internal, "can't get users by date: %v - SearchUserByDate", err)
+=======
+		return nil, helper.RespondWithErrorGRPC(ctx, codes.Internal, "can't get users by date", err)
+>>>>>>> 50ee98f9bdeb59dbaf518569a4781daa44ff3dbd
 	}
 
 	responseUsersByDate := make([]*pb.User, len(users))
@@ -82,7 +86,7 @@ func (s *server) SearchPosts(ctx context.Context, req *pb.SearchPostsRequest) (*
 
 	posts, err := s.db.SearchPosts(ctx, searchPostParams)
 	if err != nil {
-		return nil, status.Errorf(codes.Internal, "can't get posts: %v - SearchUser", err)
+		return nil, helper.RespondWithErrorGRPC(ctx, codes.Internal, "can't find posts by date - SearchPostsByDate", err)
 	}
 
 	responsePosts := make([]*pb.Post, len(posts))
@@ -93,6 +97,7 @@ func (s *server) SearchPosts(ctx context.Context, req *pb.SearchPostsRequest) (*
 			UpdatedAt: timestamppb.New(post.UpdatedAt),
 			PostedBy:  post.PostedBy,
 			Body:      post.Body,
+			Likes:     post.Likes,
 			Views:     post.Views,
 			LikedBy:   post.LikedBy,
 		}
@@ -103,21 +108,48 @@ func (s *server) SearchPosts(ctx context.Context, req *pb.SearchPostsRequest) (*
 	}, nil
 }
 
+func (s *server) SearchPostsByDate(ctx context.Context, req *pb.SearchPostsByDateRequest) (*pb.SearchPostsByDateResponse, error) {
+	searchPostsByDateParams := sql.NullString{String: req.GetQuery(), Valid: req.GetQuery() != ""}
+
+	posts, err := s.db.SearchPostsByDate(ctx, searchPostsByDateParams)
+	if err != nil {
+		return nil, helper.RespondWithErrorGRPC(ctx, codes.Internal, "can't get users by date", err)
+	}
+
+	responsePostsByDate := make([]*pb.Post, len(posts))
+	for i, post := range posts {
+		responsePostsByDate[i] = &pb.Post{
+			Id:        post.ID.String(),
+			CreatedAt: timestamppb.New(post.CreatedAt),
+			UpdatedAt: timestamppb.New(post.UpdatedAt),
+			PostedBy:  post.PostedBy,
+			Body:      post.Body,
+			Likes:     post.Likes,
+			Views:     post.Views,
+			LikedBy:   post.LikedBy,
+		}
+	}
+
+	return &pb.SearchPostsByDateResponse{
+		Posts: responsePostsByDate,
+	}, nil
+}
+
 func (s *server) SearchReports(ctx context.Context, req *pb.SearchReportsRequest) (*pb.SearchReportsResponse, error) {
 	searchReportsParams := sql.NullString{String: req.GetQuery(), Valid: req.GetQuery() != ""}
 
 	reports, err := s.db.SearchReports(ctx, searchReportsParams)
 	if err != nil {
-		return nil, status.Errorf(codes.Internal, "can't get report: %v - SearchReports", err)
+		return nil, helper.RespondWithErrorGRPC(ctx, codes.Internal, "can't get report - SearchReports", err)
 	}
 
 	responseReports := make([]*pb.Report, len(reports))
 	for i, report := range reports {
 		responseReports[i] = &pb.Report{
-			Id:        report.ID.String(),
+			Id:         report.ID.String(),
 			ReportedAt: timestamppb.New(report.ReportedAt),
 			ReportedBy: report.ReportedBy.String(),
-			Reason: report.Reason,
+			Reason:     report.Reason,
 		}
 	}
 

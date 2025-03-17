@@ -15,8 +15,21 @@ import (
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the grpc package it is being compiled against.
+<<<<<<< HEAD
 // Requires gRPC-Go v1.32.0 or later.
 const _ = grpc.SupportPackageIsVersion7
+=======
+// Requires gRPC-Go v1.64.0 or later.
+const _ = grpc.SupportPackageIsVersion9
+
+const (
+	SearchService_SearchUsers_FullMethodName       = "/search.SearchService/SearchUsers"
+	SearchService_SearchPosts_FullMethodName       = "/search.SearchService/SearchPosts"
+	SearchService_SearchReports_FullMethodName     = "/search.SearchService/SearchReports"
+	SearchService_SearchUsersByDate_FullMethodName = "/search.SearchService/SearchUsersByDate"
+	SearchService_SearchPostsByDate_FullMethodName = "/search.SearchService/SearchPostsByDate"
+)
+>>>>>>> 50ee98f9bdeb59dbaf518569a4781daa44ff3dbd
 
 // SearchServiceClient is the client API for SearchService service.
 //
@@ -26,6 +39,10 @@ type SearchServiceClient interface {
 	SearchPosts(ctx context.Context, in *SearchPostsRequest, opts ...grpc.CallOption) (*SearchPostsResponse, error)
 	SearchReports(ctx context.Context, in *SearchReportsRequest, opts ...grpc.CallOption) (*SearchReportsResponse, error)
 	SearchUsersByDate(ctx context.Context, in *SearchUsersByDateRequest, opts ...grpc.CallOption) (*SearchUsersByDateResponse, error)
+<<<<<<< HEAD
+=======
+	SearchPostsByDate(ctx context.Context, in *SearchPostsByDateRequest, opts ...grpc.CallOption) (*SearchPostsByDateResponse, error)
+>>>>>>> 50ee98f9bdeb59dbaf518569a4781daa44ff3dbd
 }
 
 type searchServiceClient struct {
@@ -72,6 +89,26 @@ func (c *searchServiceClient) SearchUsersByDate(ctx context.Context, in *SearchU
 	return out, nil
 }
 
+func (c *searchServiceClient) SearchUsersByDate(ctx context.Context, in *SearchUsersByDateRequest, opts ...grpc.CallOption) (*SearchUsersByDateResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(SearchUsersByDateResponse)
+	err := c.cc.Invoke(ctx, SearchService_SearchUsersByDate_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *searchServiceClient) SearchPostsByDate(ctx context.Context, in *SearchPostsByDateRequest, opts ...grpc.CallOption) (*SearchPostsByDateResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(SearchPostsByDateResponse)
+	err := c.cc.Invoke(ctx, SearchService_SearchPostsByDate_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // SearchServiceServer is the server API for SearchService service.
 // All implementations must embed UnimplementedSearchServiceServer
 // for forward compatibility
@@ -80,6 +117,10 @@ type SearchServiceServer interface {
 	SearchPosts(context.Context, *SearchPostsRequest) (*SearchPostsResponse, error)
 	SearchReports(context.Context, *SearchReportsRequest) (*SearchReportsResponse, error)
 	SearchUsersByDate(context.Context, *SearchUsersByDateRequest) (*SearchUsersByDateResponse, error)
+<<<<<<< HEAD
+=======
+	SearchPostsByDate(context.Context, *SearchPostsByDateRequest) (*SearchPostsByDateResponse, error)
+>>>>>>> 50ee98f9bdeb59dbaf518569a4781daa44ff3dbd
 	mustEmbedUnimplementedSearchServiceServer()
 }
 
@@ -99,6 +140,12 @@ func (UnimplementedSearchServiceServer) SearchReports(context.Context, *SearchRe
 func (UnimplementedSearchServiceServer) SearchUsersByDate(context.Context, *SearchUsersByDateRequest) (*SearchUsersByDateResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SearchUsersByDate not implemented")
 }
+<<<<<<< HEAD
+=======
+func (UnimplementedSearchServiceServer) SearchPostsByDate(context.Context, *SearchPostsByDateRequest) (*SearchPostsByDateResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SearchPostsByDate not implemented")
+}
+>>>>>>> 50ee98f9bdeb59dbaf518569a4781daa44ff3dbd
 func (UnimplementedSearchServiceServer) mustEmbedUnimplementedSearchServiceServer() {}
 
 // UnsafeSearchServiceServer may be embedded to opt out of forward compatibility for this service.
@@ -176,7 +223,11 @@ func _SearchService_SearchUsersByDate_Handler(srv interface{}, ctx context.Conte
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
+<<<<<<< HEAD
 		FullMethod: "/search.SearchService/SearchUsersByDate",
+=======
+		FullMethod: SearchService_SearchUsersByDate_FullMethodName,
+>>>>>>> 50ee98f9bdeb59dbaf518569a4781daa44ff3dbd
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(SearchServiceServer).SearchUsersByDate(ctx, req.(*SearchUsersByDateRequest))
@@ -184,6 +235,27 @@ func _SearchService_SearchUsersByDate_Handler(srv interface{}, ctx context.Conte
 	return interceptor(ctx, in, info, handler)
 }
 
+<<<<<<< HEAD
+=======
+func _SearchService_SearchPostsByDate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SearchPostsByDateRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SearchServiceServer).SearchPostsByDate(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: SearchService_SearchPostsByDate_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SearchServiceServer).SearchPostsByDate(ctx, req.(*SearchPostsByDateRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+>>>>>>> 50ee98f9bdeb59dbaf518569a4781daa44ff3dbd
 // SearchService_ServiceDesc is the grpc.ServiceDesc for SearchService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -207,6 +279,13 @@ var SearchService_ServiceDesc = grpc.ServiceDesc{
 			MethodName: "SearchUsersByDate",
 			Handler:    _SearchService_SearchUsersByDate_Handler,
 		},
+<<<<<<< HEAD
+=======
+		{
+			MethodName: "SearchPostsByDate",
+			Handler:    _SearchService_SearchPostsByDate_Handler,
+		},
+>>>>>>> 50ee98f9bdeb59dbaf518569a4781daa44ff3dbd
 	},
 	Streams:  []grpc.StreamDesc{},
 	Metadata: "search.proto",
