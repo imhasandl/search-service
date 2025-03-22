@@ -55,11 +55,7 @@ func (s *server) SearchUsersByDate(ctx context.Context, req *pb.SearchUsersByDat
 
 	users, err := s.db.SearchUsersByDate(ctx, searchUsersByDateParams)
 	if err != nil {
-<<<<<<< HEAD
-		return nil, status.Errorf(codes.Internal, "can't get users by date: %v - SearchUserByDate", err)
-=======
 		return nil, helper.RespondWithErrorGRPC(ctx, codes.Internal, "can't get users by date", err)
->>>>>>> 50ee98f9bdeb59dbaf518569a4781daa44ff3dbd
 	}
 
 	responseUsersByDate := make([]*pb.User, len(users))
@@ -131,7 +127,7 @@ func (s *server) SearchPostsByDate(ctx context.Context, req *pb.SearchPostsByDat
 	}
 
 	return &pb.SearchPostsByDateResponse{
-		Posts: responsePostsByDate,
+		Post: responsePostsByDate,
 	}, nil
 }
 
