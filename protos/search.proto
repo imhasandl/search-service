@@ -7,9 +7,14 @@ import "google/protobuf/timestamp.proto";
 option go_package = "github.com/imhasandl/search-service/protos";
 
 service SearchService {
-   rpc SearchUsers (SearchUsersRequest) returns (SearchUsersResponse) {}
-   rpc SearchPosts (SearchPostsRequest) returns (SearchPostsResponse) {}
-   rpc SearchReports (SearchReportsRequest) returns (SearchReportsResponse) {}
+  rpc SearchUsers (SearchUsersRequest) returns (SearchUsersResponse) {}
+  rpc SearchUsersByDate (SearchUsersByDateRequest) returns (SearchUsersByDateResponse) {}
+  
+  rpc SearchPosts (SearchPostsRequest) returns (SearchPostsResponse) {}
+  rpc SearchPostsByDate (SearchPostsByDateRequest) returns (SearchPostsByDateResponse) {}
+
+  rpc SearchReports (SearchReportsRequest) returns (SearchReportsResponse) {}
+  rpc SearchReportsByDate (SearchReportsByDateRequest) returns (SearchReportsByDateResponse) {}
 }
 
 message SearchUsersRequest {
@@ -17,6 +22,14 @@ message SearchUsersRequest {
 }
 
 message SearchUsersResponse {
+  repeated User users = 1; 
+}
+
+message SearchUsersByDateRequest {
+  string query = 1;
+}
+
+message SearchUsersByDateResponse {
   repeated User users = 1; 
 }
 
@@ -28,11 +41,27 @@ message SearchPostsResponse {
   repeated Post post = 1;
 }
 
+message SearchPostsByDateRequest {
+  string query = 1;
+}
+
+message SearchPostsByDateResponse {
+  repeated Post post = 1;
+}
+
 message SearchReportsRequest {
   string query = 1;
 }
 
 message SearchReportsResponse {
+  repeated Report report = 1;
+}
+
+message SearchReportsByDateRequest {
+  string query = 1;
+}
+
+message SearchReportsByDateResponse {
   repeated Report report = 1;
 }
 
