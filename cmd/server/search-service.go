@@ -3,6 +3,8 @@ package server
 import (
 	"context"
 	"database/sql"
+	"log"
+	"time"
 
 	"github.com/imhasandl/search-service/cmd/helper"
 	"github.com/imhasandl/search-service/internal/database"
@@ -25,6 +27,12 @@ func NewServer(dbQueries *database.Queries, tokenSecret string) *server {
 }
 
 func (s *server) SearchUsers(ctx context.Context, req *pb.SearchUsersRequest) (*pb.SearchUsersResponse, error) {
+	startTime := time.Now()
+    defer func() {
+		endTime := time.Since(startTime)
+		log.Printf("Finished searching in %v", endTime)
+    }()
+	
 	searchUserParams := sql.NullString{String: req.GetQuery(), Valid: req.GetQuery() != ""}
 
 	users, err := s.db.SearchUsers(ctx, searchUserParams)
@@ -109,7 +117,7 @@ func (s *server) SearchPostsByDate(ctx context.Context, req *pb.SearchPostsByDat
 
 	posts, err := s.db.SearchPostsByDate(ctx, searchPostsByDateParams)
 	if err != nil {
-		return nil, helper.RespondWithErrorGRPC(ctx, codes.Internal, "can't get users by date", err)
+		return nil, helper.RespondWithErrorGRPC(ctx, codes.Internal, "can't get posts by date - SearchPostsByDate", err)
 	}
 
 	responsePostsByDate := make([]*pb.Post, len(posts))
@@ -159,20 +167,20 @@ func (s *server) SearchReportsByDate(ctx context.Context, req *pb.SearchReportsB
 
 	reports, err := s.db.SearchReportsByDate(ctx, searchReportsByDateParams)
 	if err != nil {
-		 return nil, helper.RespondWithErrorGRPC(ctx, codes.Internal, "can't get reports by date - SearchReportsByDate", err)
+		return nil, helper.RespondWithErrorGRPC(ctx, codes.Internal, "can't get posts by date - SearchPostsByDate", err)
 	}
 
 	responseReports := make([]*pb.Report, len(reports))
 	for i, report := range reports {
-		 responseReports[i] = &pb.Report{
-			  Id:         report.ID.String(),
-			  ReportedAt: timestamppb.New(report.ReportedAt),
-			  ReportedBy: report.ReportedBy.String(),
-			  Reason:     report.Reason,
-		 }
+		responseReports[i] = &pb.Report{
+			Id:         report.ID.String(),
+			ReportedAt: timestamppb.New(report.ReportedAt),
+			ReportedBy: report.ReportedBy.String(),
+			Reason:     report.Reason,
+		}
 	}
 
 	return &pb.SearchReportsByDateResponse{
-		 Report: responseReports,
+		Report: responseReports,
 	}, nil
 }
