@@ -91,7 +91,7 @@ func (s *server) SearchPosts(ctx context.Context, req *pb.SearchPostsRequest) (*
 			Id:        post.ID.String(),
 			CreatedAt: timestamppb.New(post.CreatedAt),
 			UpdatedAt: timestamppb.New(post.UpdatedAt),
-			PostedBy:  post.PostedBy,
+			PostedBy:  post.PostedBy.String(),
 			Body:      post.Body,
 			Likes:     post.Likes,
 			Views:     post.Views,
@@ -118,7 +118,7 @@ func (s *server) SearchPostsByDate(ctx context.Context, req *pb.SearchPostsByDat
 			Id:        post.ID.String(),
 			CreatedAt: timestamppb.New(post.CreatedAt),
 			UpdatedAt: timestamppb.New(post.UpdatedAt),
-			PostedBy:  post.PostedBy,
+			PostedBy:  post.PostedBy.String(),
 			Body:      post.Body,
 			Likes:     post.Likes,
 			Views:     post.Views,
@@ -151,5 +151,28 @@ func (s *server) SearchReports(ctx context.Context, req *pb.SearchReportsRequest
 
 	return &pb.SearchReportsResponse{
 		Report: responseReports,
+	}, nil
+}
+
+func (s *server) SearchReportsByDate(ctx context.Context, req *pb.SearchReportsByDateRequest) (*pb.SearchReportsByDateResponse, error) {
+	searchReportsByDateParams := sql.NullString{String: req.GetQuery(), Valid: req.GetQuery() != ""}
+
+	reports, err := s.db.SearchReportsByDate(ctx, searchReportsByDateParams)
+	if err != nil {
+		 return nil, helper.RespondWithErrorGRPC(ctx, codes.Internal, "can't get reports by date - SearchReportsByDate", err)
+	}
+
+	responseReports := make([]*pb.Report, len(reports))
+	for i, report := range reports {
+		 responseReports[i] = &pb.Report{
+			  Id:         report.ID.String(),
+			  ReportedAt: timestamppb.New(report.ReportedAt),
+			  ReportedBy: report.ReportedBy.String(),
+			  Reason:     report.Reason,
+		 }
+	}
+
+	return &pb.SearchReportsByDateResponse{
+		 Report: responseReports,
 	}, nil
 }
