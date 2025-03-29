@@ -13,13 +13,22 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
+type DatabaseQuerier interface {
+	SearchUsers(ctx context.Context, arg sql.NullString) ([]database.User, error)
+	SearchUsersByDate(ctx context.Context, arg sql.NullString) ([]database.User, error)
+	SearchPosts(ctx context.Context, arg sql.NullString) ([]database.Post, error)
+	SearchPostsByDate(ctx context.Context, arg sql.NullString) ([]database.Post, error)
+	SearchReports(ctx context.Context, arg sql.NullString) ([]database.Report, error)
+	SearchReportsByDate(ctx context.Context, arg sql.NullString) ([]database.Report, error)
+}
+
 type server struct {
 	pb.UnimplementedSearchServiceServer
-	db          *database.Queries
+	db          DatabaseQuerier
 	tokenSecret string
 }
 
-func NewServer(dbQueries *database.Queries, tokenSecret string) *server {
+func NewServer(dbQueries DatabaseQuerier, tokenSecret string) *server {
 	return &server{
 		db:          dbQueries,
 		tokenSecret: tokenSecret,
