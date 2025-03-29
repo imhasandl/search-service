@@ -29,7 +29,7 @@ func TestSearchUsers(t *testing.T) {
 		testTime := time.Now()
 		query := "john"
 		nullQuery := sql.NullString{String: query, Valid: true}
-		
+
 		// Configure Mock
 		mockDB.On("SearchUsers", mock.Anything, nullQuery).Return([]database.User{
 			{
@@ -51,67 +51,71 @@ func TestSearchUsers(t *testing.T) {
 		// Execute the method
 		resp, err := testServer.SearchUsers(context.Background(), &pb.SearchUsersRequest{
 			Query: query,
-	  })
-	  
-	  // Verify
-	  assert.NoError(t, err)
-	  assert.NotNil(t, resp)
-	  assert.Equal(t, 1, len(resp.Users))
-	  assert.Equal(t, userID.String(), resp.Users[0].Id)
-	  assert.Equal(t, "johndoe", resp.Users[0].Username)
-	  assert.Equal(t, true, resp.Users[0].IsPremium)
-	  assert.Equal(t, true, resp.Users[0].IsVerified)
-	  
-	  // Verify mock expectations
-	  mockDB.AssertExpectations(t)
+		})
+
+		// Verify
+		assert.NoError(t, err)
+		assert.NotNil(t, resp)
+		assert.Equal(t, 1, len(resp.Users))
+		assert.Equal(t, userID.String(), resp.Users[0].Id)
+		assert.Equal(t, "johndoe", resp.Users[0].Username)
+		assert.Equal(t, true, resp.Users[0].IsPremium)
+		assert.Equal(t, true, resp.Users[0].IsVerified)
+
+		// Verify mock expectations
+		mockDB.AssertExpectations(t)
 	})
 
 	t.Run("empty query", func(t *testing.T) {
 		// Empty query should still work but might return all users
 		nullQuery := sql.NullString{String: "", Valid: true}
-		
+
 		// Configure mock
 		mockDB.On("SearchUsers", mock.Anything, nullQuery).Return([]database.User{}, nil).Once()
-		
+
 		// Execute the method
 		resp, err := testServer.SearchUsers(context.Background(), &pb.SearchUsersRequest{
-			 Query: "",
+			Query: "",
 		})
-		
+
 		// Verify
 		assert.NoError(t, err)
 		assert.NotNil(t, resp)
 		assert.Equal(t, 0, len(resp.Users))
-		
+
 		// Verify mock expectations
 		mockDB.AssertExpectations(t)
-  })
+	})
 
-  t.Run("database error", func(t *testing.T) {
+	t.Run("database error", func(t *testing.T) {
 		// Configure mock to return error
 		query := "error"
 		nullQuery := sql.NullString{String: query, Valid: true}
-		
+
 		mockDB.On("SearchUsers", mock.Anything, nullQuery).Return(
-			 []database.User{}, errors.New("database error"),
+			[]database.User{}, errors.New("database error"),
 		).Once()
-		
+
 		// Execute the method
 		resp, err := testServer.SearchUsers(context.Background(), &pb.SearchUsersRequest{
-			 Query: query,
+			Query: query,
 		})
-		
+
 		// Verify error is returned correctly
 		assert.Error(t, err)
 		assert.Nil(t, resp)
-		
+
 		// Check if error is correctly formatted as gRPC error
 		statusErr, ok := status.FromError(err)
 		assert.True(t, ok)
 		assert.Equal(t, codes.Internal, statusErr.Code())
 		assert.Contains(t, statusErr.Message(), "can't get users")
-		
+
 		// Verify mock expectations
 		mockDB.AssertExpectations(t)
-  })
+	})
+}
+
+func TestSearchUsersByDate(t *testing.T) {
+
 }
