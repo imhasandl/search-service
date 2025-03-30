@@ -95,5 +95,63 @@ func TestSearchPosts(t *testing.T) {
 }
 
 func TestSearchPostsByDate(t *testing.T) {
-
+	// Setup
+	mockDB := mocks.NewMockQueries()
+	testServer := server.NewServer(mockDB, "test-secret")
+	
+	t.Run("successful search with date sorting", func(t *testing.T) {
+		 // Prepare test data
+		 postID1 := uuid.New()
+		 postID2 := uuid.New()
+		 userID := uuid.New()
+		 testTime1 := time.Now().Add(-24 * time.Hour) // older post
+		 testTime2 := time.Now()                      // newer post
+		 query := "content"
+		 nullQuery := sql.NullString{String: query, Valid: true}
+		 
+		 // Configure mock to return time-sorted results
+		 mockDB.On("SearchPostsByDate", mock.Anything, nullQuery).Return([]database.Post{
+			  {
+					ID:        postID1,
+					CreatedAt: testTime1,
+					UpdatedAt: testTime1,
+					PostedBy:  userID,
+					Body:      "Old post content",
+					Likes:     2,
+					Views:     5,
+					LikedBy:   []string{"user1"},
+			  },
+			  {
+					ID:        postID2,
+					CreatedAt: testTime2,
+					UpdatedAt: testTime2,
+					PostedBy:  userID,
+					Body:      "New post content",
+					Likes:     1,
+					Views:     3,
+					LikedBy:   []string{},
+			  },
+		 }, nil).Once()
+		 
+		 // Execute the method
+		 resp, err := testServer.SearchPostsByDate(context.Background(), &pb.SearchPostsByDateRequest{
+			  Query: query,
+		 })
+		 
+		 // Verify
+		 assert.NoError(t, err)
+		 assert.NotNil(t, resp)
+		 assert.Equal(t, 2, len(resp.Post))
+		 
+		 // First post should be older
+		 assert.Equal(t, postID1.String(), resp.Post[0].Id)
+		 assert.Equal(t, "Old post content", resp.Post[0].Body)
+		 
+		 // Second post should be newer
+		 assert.Equal(t, postID2.String(), resp.Post[1].Id)
+		 assert.Equal(t, "New post content", resp.Post[1].Body)
+		 
+		 // Verify mock expectations
+		 mockDB.AssertExpectations(t)
+	})
 }
