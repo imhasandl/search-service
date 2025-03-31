@@ -117,5 +117,60 @@ func TestSearchUsers(t *testing.T) {
 }
 
 func TestSearchUsersByDate(t *testing.T) {
-
+	// Setup
+	mockDB := mocks.NewMockQueries()
+	testServer := server.NewServer(mockDB, "test-secret")
+	
+	t.Run("successful search with sorting", func(t *testing.T) {
+		 // Prepare test data
+		 userID1 := uuid.New()
+		 userID2 := uuid.New()
+		 testTime1 := time.Now().Add(-24 * time.Hour) // older
+		 testTime2 := time.Now()                     // newer
+		 query := "user"
+		 nullQuery := sql.NullString{String: query, Valid: true}
+		 
+		 // Configure mock to return sorted results
+		 mockDB.On("SearchUsersByDate", mock.Anything, nullQuery).Return([]database.User{
+			  {
+					ID:        userID1,
+					CreatedAt: testTime1,
+					UpdatedAt: testTime1,
+					Email:     "user1@example.com",
+					Username:  "user1",
+					IsPremium: false,
+					IsVerified: true,
+			  },
+			  {
+					ID:        userID2,
+					CreatedAt: testTime2,
+					UpdatedAt: testTime2,
+					Email:     "user2@example.com",
+					Username:  "user2",
+					IsPremium: true,
+					IsVerified: false,
+			  },
+		 }, nil).Once()
+		 
+		 // Execute the method
+		 resp, err := testServer.SearchUsersByDate(context.Background(), &pb.SearchUsersByDateRequest{
+			  Query: query,
+		 })
+		 
+		 // Verify
+		 assert.NoError(t, err)
+		 assert.NotNil(t, resp)
+		 assert.Equal(t, 2, len(resp.Users))
+		 
+		 // First user should be the older one
+		 assert.Equal(t, userID1.String(), resp.Users[0].Id)
+		 assert.Equal(t, "user1", resp.Users[0].Username)
+		 
+		 // Second user should be the newer one
+		 assert.Equal(t, userID2.String(), resp.Users[1].Id)
+		 assert.Equal(t, "user2", resp.Users[1].Username)
+		 
+		 // Verify mock expectations
+		 mockDB.AssertExpectations(t)
+	})
 }
