@@ -88,5 +88,55 @@ func TestSearchReports(t *testing.T) {
 }
 
 func TestSearchReportsByDate(t *testing.T) {
+	// Setup
+	mockDB := mocks.NewMockQueries()
+	testServer := server.NewServer(mockDB, "test-secret")
 	
+	t.Run("successful search with date sorting", func(t *testing.T) {
+		 // Prepare test data
+		 reportID1 := uuid.New()
+		 reportID2 := uuid.New()
+		 userID := uuid.New()
+		 testTime1 := time.Now().Add(-24 * time.Hour) // older report
+		 testTime2 := time.Now()                      // newer report
+		 query := "report"
+		 nullQuery := sql.NullString{String: query, Valid: true}
+		 
+		 // Configure mock to return date-sorted results
+		 mockDB.On("SearchReportsByDate", mock.Anything, nullQuery).Return([]database.Report{
+			  {
+					ID:         reportID1,
+					ReportedAt: testTime1,
+					ReportedBy: userID,
+					Reason:     "Old report reason",
+			  },
+			  {
+					ID:         reportID2,
+					ReportedAt: testTime2,
+					ReportedBy: userID,
+					Reason:     "New report reason",
+			  },
+		 }, nil).Once()
+		 
+		 // Execute the method
+		 resp, err := testServer.SearchReportsByDate(context.Background(), &pb.SearchReportsByDateRequest{
+			  Query: query,
+		 })
+		 
+		 // Verify
+		 assert.NoError(t, err)
+		 assert.NotNil(t, resp)
+		 assert.Equal(t, 2, len(resp.Report))
+		 
+		 // First report should be older
+		 assert.Equal(t, reportID1.String(), resp.Report[0].Id)
+		 assert.Equal(t, "Old report reason", resp.Report[0].Reason)
+		 
+		 // Second report should be newer
+		 assert.Equal(t, reportID2.String(), resp.Report[1].Id)
+		 assert.Equal(t, "New report reason", resp.Report[1].Reason)
+		 
+		 // Verify mock expectations
+		 mockDB.AssertExpectations(t)
+	})
 }
