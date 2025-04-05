@@ -1,4 +1,8 @@
 [![CI](https://github.com/imhasandl/search-service/actions/workflows/ci.yml/badge.svg)](https://github.com/imhasandl/search-service/actions/workflows/ci.yml)
+[![Go Report Card](https://goreportcard.com/badge/github.com/imhasandl/search-service)](https://goreportcard.com/report/github.com/imhasandl/search-service)
+[![GoDoc](https://godoc.org/github.com/imhasandl/search-service?status.svg)](https://godoc.org/github.com/imhasandl/search-service)
+[![Coverage](https://codecov.io/gh/imhasandl/search-service/branch/main/graph/badge.svg)](https://codecov.io/gh/imhasandl/search-service)
+[![Go Version](https://img.shields.io/github/go-mod/go-version/imhasandl/search-service)](https://golang.org/doc/devel/release.html)
 
 # Search Service
 
