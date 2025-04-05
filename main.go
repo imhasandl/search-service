@@ -17,8 +17,11 @@ import (
 )
 
 func main() {
-	if err := godotenv.Load(".env"); err != nil {
-		log.Print("Error loading env file")
+	// Skip loading .env file when running in Docker
+	if os.Getenv("DOCKER_CONTAINER") != "true" {
+		if err := godotenv.Load(".env"); err != nil {
+			log.Print("Error loading env file")
+		}
 	}
 
 	port := os.Getenv("PORT")

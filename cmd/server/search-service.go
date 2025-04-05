@@ -37,11 +37,11 @@ func NewServer(dbQueries DatabaseQuerier, tokenSecret string) *server {
 
 func (s *server) SearchUsers(ctx context.Context, req *pb.SearchUsersRequest) (*pb.SearchUsersResponse, error) {
 	startTime := time.Now()
-    defer func() {
+	defer func() {
 		endTime := time.Since(startTime)
 		log.Printf("Finished searching in %v", endTime)
-    }()
-	
+	}()
+
 	searchUserParams := sql.NullString{String: req.GetQuery(), Valid: req.GetQuery() != ""}
 
 	users, err := s.db.SearchUsers(ctx, searchUserParams)

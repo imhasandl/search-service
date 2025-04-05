@@ -13,7 +13,7 @@ func RespondWithErrorGRPC(ctx context.Context, code codes.Code, msg string, err 
 	if err != nil {
 		log.Println(err)
 	}
-	
+
 	if code > codes.Internal { // 5XX equivalent in gRPC
 		log.Printf("Responding with 5XX gRPC error: %s", msg)
 	}
