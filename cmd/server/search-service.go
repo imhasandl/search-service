@@ -13,6 +13,8 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
+// DatabaseQuerier defines the interface for database operations used by the search service.
+// It contains methods for searching users, posts, and reports with various filtering options.
 type DatabaseQuerier interface {
 	SearchUsers(ctx context.Context, arg sql.NullString) ([]database.User, error)
 	SearchUsersByDate(ctx context.Context, arg sql.NullString) ([]database.User, error)
@@ -22,13 +24,20 @@ type DatabaseQuerier interface {
 	SearchReportsByDate(ctx context.Context, arg sql.NullString) ([]database.Report, error)
 }
 
+// Server represents the gRPC server for the search service.
+type Server interface {
+	pb.SearchServiceServer
+}
+
 type server struct {
 	pb.UnimplementedSearchServiceServer
 	db          DatabaseQuerier
 	tokenSecret string
 }
 
-func NewServer(dbQueries DatabaseQuerier, tokenSecret string) *server {
+// NewServer creates and returns a new instance of the search service server.
+// It requires database queries implementation and a token secret for authentication.
+func NewServer(dbQueries DatabaseQuerier, tokenSecret string) Server {
 	return &server{
 		db:          dbQueries,
 		tokenSecret: tokenSecret,
