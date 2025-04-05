@@ -274,7 +274,7 @@ The query searches for reports containing the search string in their reason, sor
 }
 ```
 
-## Running the Service
+## Running the Service or run container itself using the compose file 
 
 ```bash
 go run cmd/main.go
