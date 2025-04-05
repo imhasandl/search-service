@@ -1,3 +1,5 @@
+[![CI](https://github.com/imhasandl/search-service/actions/workflows/ci.yml/badge.svg)](https://github.com/imhasandl/search-service/actions/workflows/ci.yml)
+
 # Search Service
 
 A microservice for handling searcjing in a social media application, built with Go and gRPC.
