@@ -27,7 +27,7 @@ The service implements sophisticated indexing and query optimization to ensure s
 
 Create a `.env` file in the root directory with the following variables:
 
-```
+```env
 PORT=":YOUR_GRPC_PORT"
 DB_URL="postgres://username:password@host:port/database?sslmode=disable"
 # DB_URL="postgres://username:password@db:port/database?sslmode=disable" // FOR DOCKER COMPOSE
